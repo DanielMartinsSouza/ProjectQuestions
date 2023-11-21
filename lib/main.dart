@@ -1,52 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:project_questions/answer.dart';
-import 'package:project_questions/question.dart';
+import 'package:project_questions/quiz.dart';
 import 'package:project_questions/result.dart';
 
 main() => runApp(QuestionsApp());
 
 class _QuestionsAppState extends State<QuestionsApp> {
-  var _quenstionsIndex = 0;
+  var _totalScore = 0;
+  var _questionsIndex = 0;
   final List<Map<String, Object>> _questions = [
     {
       'question': 'Qual sua cor preferida',
-      'aswer': ['Azul', 'Verde', 'Vermelho', 'Preto'],
+      'aswer': [
+        {'text': 'Azul', 'score': 10},
+        {'text': 'Verde', 'score': 3},
+        {'text': 'Vermelho', 'score': 5},
+        {'text': 'Preto', 'score': 7},
+      ],
     },
     {
       'question': 'Qual seu animal preferido',
-      'aswer': ['Cachorro', 'Gato', 'Cavalo', 'Rato'],
+      'aswer': [
+        {'text': 'Cachorro', 'score': 10},
+        {'text': 'Gato', 'score': 7},
+        {'text': 'Cavalo', 'score': 5},
+        {'text': 'Rato', 'score': 3},
+      ],
     },
     {
       'question': 'Qual seu time preferido',
       'aswer': [
-        'Real Madrid',
-        'Manchester City',
-        'Manchester United',
-        'Chelsea'
+        {'text': 'Real Madrid', 'score': 5},
+        {'text': 'Manchester City', 'score': 10},
+        {'text': 'Manchester United', 'score': 3},
+        {'text': 'Chelsea', 'score': 7},
       ],
     },
   ];
 
-  void _respond() {
+  void _respond(int score) {
     print(questionSelected);
     if (questionSelected) {
       setState(() {
-        _quenstionsIndex++;
+        _questionsIndex++;
+        _totalScore += score;
       });
     }
+    print(_totalScore);
+  }
+
+  void _restartQuiz() {
+    setState(() {
+      _totalScore = 0;
+      _questionsIndex = 0;
+    });
   }
 
   bool get questionSelected {
-    return _quenstionsIndex < _questions.length;
+    return _questionsIndex < _questions.length;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> answersOptions =
-        questionSelected ? _questions[_quenstionsIndex].cast()['aswer'] : [];
-    List<Answer> answersList =
-        answersOptions.map((t) => Answer(t, _respond)).toList();
-
     // for (var answerText in answersOptions) {
     //   answersList.addAll(<Widget>[Answer(answerText, _respond)]);
     // }
@@ -60,13 +74,12 @@ class _QuestionsAppState extends State<QuestionsApp> {
               Text("Questions"), // podeira usar tambem questions.elementAt(0)
         ),
         body: questionSelected
-            ? Column(
-                children: [
-                  Question(_questions[_quenstionsIndex]['question'].toString()),
-                  ...answersList,
-                ],
+            ? Quiz(
+                respond: _respond,
+                questions: _questions,
+                questionsIndex: _questionsIndex,
               )
-            : Result(),
+            : Result(_totalScore, _restartQuiz),
       ),
     );
   }
